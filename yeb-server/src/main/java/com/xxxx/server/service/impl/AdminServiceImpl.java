@@ -103,4 +103,16 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     public List<Role> getRolesByAdminId(Integer adminId) {
         return roleMapper.getRolesByAdminId(adminId);
     }
+
+    /**
+     * 获取所有操作员(当前登录用户除外)
+     * @param keyWords
+     * @return
+     */
+    @Override
+    public List<Admin> getAllAdmins(String keyWords) {
+        //获取当前用户id
+        Integer adminId = ((Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+        return adminMapper.getAllAdmins(adminId,keyWords);
+    }
 }

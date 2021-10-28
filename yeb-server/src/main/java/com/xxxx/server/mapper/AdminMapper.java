@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.xxxx.server.pojo.Admin;
 import com.xxxx.server.pojo.Menu;
 import com.xxxx.server.pojo.Role;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -16,4 +17,11 @@ import java.util.List;
  * @since 2021-10-21
  */
 public interface AdminMapper extends BaseMapper<Admin> {
+    /**
+     * 获取所有操作员(当前登录用户除外)
+     * @param adminId
+     * @param keyWords
+     * @return
+     */
+    List<Admin> getAllAdmins(@Param("adminId") Integer adminId, @Param("keyWords") String keyWords);
 }
