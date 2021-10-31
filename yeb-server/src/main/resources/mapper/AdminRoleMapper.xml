@@ -14,4 +14,16 @@
         id, adminId, rid
     </sql>
 
+    <!--删除管理员角色信息-->
+    <delete id="deleteAdminRoles">
+        delete from t_admin_role where adminId=#{id}
+    </delete>
+
+    <!--添加用户角色-->
+    <insert id="insertAdminRoles">
+        insert into t_admin_role(adminId,rid) values
+        <foreach collection="rids" item="rid" separator=",">
+            (#{aid},#{rid})
+        </foreach>
+    </insert>
 </mapper>

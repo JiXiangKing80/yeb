@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xxxx.server.config.security.JwtTokenUtil;
 import com.xxxx.server.mapper.AdminMapper;
+import com.xxxx.server.mapper.AdminRoleMapper;
 import com.xxxx.server.mapper.RoleMapper;
 import com.xxxx.server.pojo.Admin;
 import com.xxxx.server.pojo.Menu;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -47,6 +49,8 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     private String tokenHead;
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private AdminRoleMapper adminRoleMapper;
 
     /**
      * 登陆之后返回token
@@ -114,5 +118,43 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
         //获取当前用户id
         Integer adminId = ((Admin) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
         return adminMapper.getAllAdmins(adminId,keyWords);
+    }
+
+    /**
+     * 删除管理员
+     * @param id
+     * @return
+     */
+    @Override
+    @Transactional
+    public RespBean deleteAdminById(Integer id) {
+        try{
+            //先删除用户信息
+            adminMapper.deleteById(id);
+            //再删除用户对应角色
+            adminRoleMapper.deleteAdminRoles(id);
+            return RespBean.success("删除成功",null);
+        }catch (Exception e){
+            return RespBean.error("删除失败");
+        }
+    }
+
+    /**
+     * 更新管理员角色
+     * @param aid
+     * @param rids
+     * @return
+     */
+    @Override
+    @Transactional
+    public RespBean updateRoles(Integer aid, Integer[] rids) {
+        //先去删除用户角色
+        adminRoleMapper.deleteAdminRoles(aid);
+        //再重新添加用户角色
+        Integer resultNum = adminRoleMapper.insertAdminRoles(aid,rids);
+        if (resultNum == rids.length){
+            return RespBean.success("更新成功",null);
+        }
+        return RespBean.error("更新失败");
     }
 }

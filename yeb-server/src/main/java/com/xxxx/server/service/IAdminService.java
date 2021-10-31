@@ -49,4 +49,19 @@ public interface IAdminService extends IService<Admin> {
      * @return
      */
     List<Admin> getAllAdmins(String keyWords);
+
+    /**
+     * 删除管理员
+     * @param id
+     * @return
+     */
+    RespBean deleteAdminById(Integer id);
+
+    /**
+     * 更新管理员角色
+     * @param aid
+     * @param rids
+     * @return
+     */
+    RespBean updateRoles(Integer aid, Integer[] rids);
 }
