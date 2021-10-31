@@ -1,7 +1,12 @@
 package com.xxxx.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xxxx.server.pojo.Employee;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDate;
 
 /**
  * <p>
@@ -13,4 +18,12 @@ import com.xxxx.server.pojo.Employee;
  */
 public interface EmployeeMapper extends BaseMapper<Employee> {
 
+    /**
+     * 分页查询所有员工
+     * @param page
+     * @param employee
+     * @param beginDateScope
+     * @return
+     */
+    IPage<Employee> getAllEmployeeByPage(Page<Employee> page, @Param("employee") Employee employee, @Param("beginDateScope") LocalDate[] beginDateScope);
 }
