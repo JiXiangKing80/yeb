@@ -110,7 +110,7 @@
         <if test="employee.engageForm != null and '' != employee.engageForm">
             AND e.engageForm = #{employee.engageForm}
         </if>
-        <if test="beginDateScope != null and '' != beginDateScope">
+        <if test="beginDateScope != null and 2==beginDateScope.length">
             AND e.beginDate BETWEEN #{beginDateScope[0]} AND #{beginDateScope[1]}
         </if>
         ORDER BY

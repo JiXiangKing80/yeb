@@ -6,6 +6,7 @@ import com.xxxx.server.service.*;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,6 +44,7 @@ public class EmployeeController {
                                              LocalDate[] beginDateScope,
                                              @RequestParam(defaultValue = "1") Integer currentPage,
                                              @RequestParam(defaultValue = "10") Integer size){
+        System.out.println(beginDateScope);
         return employeeService.getAllEmployeeByPage(employee,beginDateScope,currentPage,size);
     }
 
@@ -72,8 +74,38 @@ public class EmployeeController {
     }
 
     @ApiOperation(value = "获取所有部门")
-    @GetMapping("/departments")
+    @GetMapping("/deps")
     public List<Department> getAllDepartent(){
         return departmentService.getAllDepartments();
+    }
+
+    @ApiOperation(value = "获取工号")
+    @GetMapping("/maxWorkID")
+    public RespBean getMaxWorkId(){
+        return RespBean.success(null,employeeService.getMaxWorkId());
+    }
+
+    @ApiOperation(value = "添加员工")
+    @PostMapping("/")
+    public RespBean addEmployee(@RequestBody Employee employee){
+        if (1==employeeService.addEmployee(employee)){
+            return RespBean.success("添加成功",null);
+        }
+        return RespBean.error("添加失败");
+    }
+
+    @ApiOperation(value = "删除员工")
+    @DeleteMapping("/{id}")
+    public RespBean deleteEmployee(@PathVariable Integer id){
+        if (employeeService.removeById(id)) {
+            return RespBean.success("删除成功",null);
+        }
+        return RespBean.error("删除失败");
+    }
+
+    @ApiOperation(value = "更新员工信息")
+    @PutMapping("/")
+    public RespBean updateEmployee(@RequestBody Employee employee){
+        return employeeService.updateEmployee(employee);
     }
 }
