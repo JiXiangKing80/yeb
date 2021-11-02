@@ -117,4 +117,36 @@
             e.id
     </select>
 
+    <!--获取员工通用-->
+    <select id="getEmployee" resultMap="EmployeeInfo">
+        SELECT
+            e.*,
+            n.id nid,
+            n.`name` nname,
+            p.id pid,
+            p.`name` pname,
+            d.id did,
+            d.`name` dname,
+            ps.id psid,
+            ps.`name` psname,
+            j.id jid,
+            j.`name` jname
+        FROM
+            t_employee e,
+            t_position p,
+            t_nation n,
+            t_joblevel j,
+            t_politics_status ps,
+            t_department d
+        WHERE
+            e.posId = p.id
+          AND e.nationId = n.id
+          AND e.jobLevelId = j.id
+          AND e.politicId = ps.id
+          AND e.departmentId = d.id
+          <if test="id!=null and ''!=id">
+              AND e.id = #{id}
+          </if>
+    </select>
+
 </mapper>

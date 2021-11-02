@@ -7,6 +7,7 @@ import com.xxxx.server.pojo.Employee;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * <p>
@@ -26,4 +27,11 @@ public interface EmployeeMapper extends BaseMapper<Employee> {
      * @return
      */
     IPage<Employee> getAllEmployeeByPage(Page<Employee> page, @Param("employee") Employee employee, @Param("beginDateScope") LocalDate[] beginDateScope);
+
+    /**
+     * 获取员工(通用)
+     * @param id
+     * @return
+     */
+    List<Employee> getEmployee(Integer id);
 }

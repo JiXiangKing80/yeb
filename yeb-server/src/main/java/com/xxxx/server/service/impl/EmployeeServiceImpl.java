@@ -100,4 +100,9 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         }
         return RespBean.error("更新失败");
     }
+
+    @Override
+    public List<Employee> getEmployee(Integer id) {
+        return employeeMapper.getEmployee(id);
+    }
 }
