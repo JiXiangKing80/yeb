@@ -1,15 +1,18 @@
 package com.xxxx.server.service.impl;
+import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xxxx.server.mapper.EmployeeMapper;
-import com.xxxx.server.pojo.Employee;
-import com.xxxx.server.pojo.RespBean;
-import com.xxxx.server.pojo.RespPageBean;
+import com.xxxx.server.mapper.MailLogMapper;
+import com.xxxx.server.pojo.*;
 import com.xxxx.server.service.IEmployeeService;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.amqp.RabbitTemplateConfigurer;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,6 +21,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>
@@ -32,6 +36,10 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
     @Autowired
     EmployeeMapper employeeMapper;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private MailLogMapper mailLogMapper;
 
     /**
      * 分页查询所有员工
@@ -77,6 +85,26 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
         employee.setContractTerm(Double.parseDouble(format));
         //保存员工对象
         int insert = employeeMapper.insert(employee);
+        if (insert == 1){
+            //获取当前添加的员工对象
+            Employee emp = employeeMapper.getEmployee(employee.getId()).get(0);
+            //数据库记录发送的信息数据
+            String msgId = UUID.randomUUID().toString();
+            MailLog mailLog = new MailLog();
+            mailLog.setMsgId(msgId);
+            mailLog.setEid(emp.getId());
+            mailLog.setStatus(0);
+            mailLog.setRouteKey(MailConstants.MAIL_ROUTING_KEY_NAME);
+            mailLog.setExchange(MailConstants.MAIL_EXCHANGE_NAME);
+            mailLog.setCount(0);
+            mailLog.setTryTime(LocalDateTime.now().plusMinutes(MailConstants.MSG_TIMEOUT));
+            mailLog.setCreateTime(LocalDateTime.now());
+            mailLog.setUpdateTime(LocalDateTime.now());
+            //插入记录
+            mailLogMapper.insert(mailLog);
+            //发送消息到RabbitMQ
+            rabbitTemplate.convertAndSend(MailConstants.MAIL_EXCHANGE_NAME,MailConstants.MAIL_ROUTING_KEY_NAME,emp,new CorrelationData(msgId));
+        }
         return insert;
     }
 

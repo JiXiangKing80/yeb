@@ -3,6 +3,18 @@ server:
   port: 8081
 
 spring:
+
+  #rabbitmq   配置
+  rabbitmq:
+    username: yeb
+    password: yeb
+    host: 192.168.1.30
+    port: 5672
+    # 开启确认模式
+    publisher-confirm-type: correlated
+    # 开启回调
+    publisher-returns: true
+
   # EasyPoi配置
   application:
     name: SpringBoot_easyPOI
