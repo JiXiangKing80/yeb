@@ -9,6 +9,7 @@ import com.xxxx.server.mapper.EmployeeMapper;
 import com.xxxx.server.mapper.MailLogMapper;
 import com.xxxx.server.pojo.*;
 import com.xxxx.server.service.IEmployeeService;
+import org.apache.logging.log4j.message.ReusableMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,5 +133,20 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     @Override
     public List<Employee> getEmployee(Integer id) {
         return employeeMapper.getEmployee(id);
+    }
+
+    /**
+     * 获取所有员工套账（分页查询）
+     * @param currentPage
+     * @param size
+     * @return
+     */
+    @Override
+    public RespPageBean getEmployeeWithSalary(Integer currentPage, Integer size) {
+        //开启分页
+        Page<Employee> page = new Page<>(currentPage,size);
+        //查询数据
+        IPage<Employee> result = employeeMapper.getEmployeeWithSalary(page);
+        return new RespPageBean(result.getTotal(),result.getRecords());
     }
 }
