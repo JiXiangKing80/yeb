@@ -8,15 +8,15 @@ import com.xxxx.server.service.IAdminService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 登录
@@ -54,6 +54,29 @@ public class LoginController {
     @PostMapping("/admin/logout")
     public RespBean logout(){
         return RespBean.success("退出成功",null);
+    }
+
+    @ApiOperation(value = "修改用户信息")
+    @PutMapping("/admin/info")
+    public RespBean updateAdmin(@RequestBody Admin admin, Authentication authentication){
+        if (adminService.updateById(admin)) {
+            //更新成功，重新设置Authentication信息
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(admin,null,authentication.getAuthorities()));
+            return RespBean.success("更新成功",null);
+        }else {
+            return RespBean.error("更新失败");
+        }
+    }
+
+    @ApiOperation(value = "更新用户密码")
+    @PutMapping("/admin/pass")
+    public RespBean updatePass(@RequestBody Map<String,Object> info){
+        //获取用户输入信息
+        String oldPass = (String) info.get("oldPass");
+        String newPass = (String) info.get("pass");
+        Integer adminId = (Integer) info.get("adminId");
+        //更新密码
+        return adminService.updatePass(oldPass,newPass,adminId);
     }
 
 }
