@@ -5,6 +5,7 @@ import com.xxxx.server.pojo.AdminLoginParam;
 import com.xxxx.server.pojo.RespBean;
 import com.xxxx.server.pojo.Role;
 import com.xxxx.server.service.IAdminService;
+import com.xxxx.server.utils.FastDFSUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -77,6 +79,18 @@ public class LoginController {
         Integer adminId = (Integer) info.get("adminId");
         //更新密码
         return adminService.updatePass(oldPass,newPass,adminId);
+    }
+
+    @ApiOperation(value = "更新用户头像")
+    @PostMapping("/admin/userface")
+    public RespBean updateUserFace(MultipartFile file,Integer adminId,Authentication authentication){
+        //上传头像到FastDFS
+        String[] filePath = FastDFSUtils.upload(file);
+        if (filePath!=null && filePath.length>0){
+            String faceUrl = FastDFSUtils.getTrackerUrl() + "/" + filePath[0] + "/" + filePath[1];
+            return adminService.updateUserFace(faceUrl,adminId,authentication);
+        }
+        return RespBean.error("更新失败");
     }
 
 }
